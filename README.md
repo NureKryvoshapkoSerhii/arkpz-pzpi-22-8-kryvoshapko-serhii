@@ -1,1 +1,3 @@
-# arkpz-pzpi-22-8-kryvoshapko-serhii
+ПЗПІ-22-8
+
+Кривошапко Сергій
