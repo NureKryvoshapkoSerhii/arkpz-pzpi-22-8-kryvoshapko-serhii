@@ -1,0 +1,147 @@
+// Стильові рекомендації
+
+// Поганий приклад
+int myfunction(){ return 0;}
+
+// Гарний приклад
+int myFunction() {
+  return 0;
+}
+
+// Іменування змінних, функцій і класів
+
+// Клас
+class UserProfile {
+  String _username; // приватна змінна
+  void displayInfo() { // метод
+    print(_username);
+  }
+}
+
+// Структура коду
+
+class UserProfile {
+  String _username; // приватна змінна
+  void displayInfo() { // метод
+    print(_username);
+  }
+}
+
+import 'user.dart';
+void main() {
+  var user = UserProfile();
+  user.displayInfo();
+}
+
+//Принципи рефакторингу 
+
+// До рефакторингу
+void printNumbers() {
+  for (int i = 0; i < 10; i++) {
+    print(i);
+  }
+}
+
+// Після рефакторингу
+void printNumbers(int max) {
+  for (int i = 0; i < max; i++) {
+    print(i);
+  }
+}
+
+// Оптимізація продуктивності 
+
+Future<void> fetchData() async {
+  var data = await fetchFromServer();
+  print(data);
+}
+
+// Обробка помилок
+
+// Функція без обробки помилок
+Future<void> fetchData() async {
+  var result = await fetchFromServer(); // Якщо виникне помилка, програма аварійно завершиться
+  print('Отримані дані: $result');
+}
+// Функція з обробкою помилок за допомогою try-catch
+Future<void> fetchData() async {
+  try {
+    var result = await fetchFromServer();
+    print('Отримані дані: $result');
+  } catch (e) {
+    print('Помилка при отриманні даних: $e');
+  }
+}
+
+// Дотримання парадинг програмування 
+
+// Клас "Тварина"
+class Animal {
+  String name;
+  int age;
+
+  // Конструктор
+  Animal(this.name, this.age);
+
+  // Метод, який описує тварину
+  void describe() {
+    print('$name є тваринам віком $age років.');
+  }
+}
+
+// Клас "Собака", що наслідує клас "Тварина"
+class Dog extends Animal {
+  String breed;
+
+  // Конструктор для класу "Собака"
+  Dog(String name, int age, this.breed) : super(name, age);
+
+  // Перевизначення методу
+  @override
+  void describe() {
+    print('$name — це $breed, віком $age років.');
+  }
+
+  // Додатковий метод для класу "Собака"
+  void bark() {
+    print('$name гавкає!');
+  }
+}
+
+void main() {
+  // Створюємо об'єкт класу "Тварина"
+  var animal = Animal('Лев', 4);
+  animal.describe(); // Виведе: Лев є тваринам віком 4 років.
+
+  // Створюємо об'єкт класу "Собака"
+  var dog = Dog('Рекс', 3, 'Вівчарка');
+  dog.describe(); // Виведе: Рекс — це Вівчарка, віком 3 років.
+  dog.bark();     // Виведе: Рекс гавкає!
+}
+
+
+// Тестування та документація коду 
+
+import 'package:test/test.dart';
+
+// Функція, яку будемо тестувати
+int add(int a, int b) {
+  return a + b;
+}
+
+void main() {
+  // Група тестів
+  group('Тести для функції add', () {
+    test('Додає два позитивні числа', () {
+      expect(add(2, 3), equals(5));  // Перевірка результату
+    });
+
+    test('Додає негативне і позитивне число', () {
+      expect(add(-2, 3), equals(1));  // Перевірка результату
+    });
+
+    test('Додає два негативні числа', () {
+      expect(add(-2, -3), equals(-5));  // Перевірка результату
+    });
+  });
+}
