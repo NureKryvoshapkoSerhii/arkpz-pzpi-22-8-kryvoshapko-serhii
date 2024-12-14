@@ -1,0 +1,583 @@
+МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+
+Кафедра «Програмної інженерії»
+
+
+
+ЗВІТ
+З лабораторної роботи № 2
+з дисципліни
+«Аналіз та рефакторинг коду»
+
+
+
+Виконав
+ст. гр. ПЗПІ-22-8
+Кривошапко Сергій	Перевірив
+ст. викладач каф. ПІ
+Сокорчук І. П.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Харків 2024
+1 Мета роботи:
+
+Розробити базу даних для серверної частини програмної системи та прикладного програмного інтерфейсу для програмного продукту NutriTrack.
+
+2 Хід роботи:
+
+2.1 Розробка UML діаграми прецедентів для серверної частини системи
+
+
+Для діаграми прецедентів (Use Case) було визначено три основних актори: звичайний користувач, фітнес-консультант та адміністратор. Для прецедентів обрано реєстрацію, авторизацію, а також базові CRUD операції (створення, читання, оновлення, видалення) для наступних сутностей: 
+Користувач:
+-	реєстрація та авторизація;
+-	створення цілі харчування;
+-	ведення харчового щоденника;
+-	ведення щоденника фізичних вправ;
+-	отримання рекомендацій консультанта;
+-	редагування профілю.
+Фітнес консультант:
+-	реєстрація та авторизація;
+-	перегляд профілів клієнтів;
+-	надання рекомендацій;
+-	редагування профілю.
+
+Адміністатор:
+-	управління обліковими записами користувачів;
+-	отримання статистики додатку;
+-	отримання даних про облікові записи користувачів.
+На основі цих акторів та прецедентів побудовано UML діаграму прецедентів системи (рисунок 2.1).
+
+ 
+Рисунок 2.1 – UML діаграма прецедентів
+
+
+
+
+
+2.2 Розробка ER діаграми даних
+
+Спроектуємо базу даних, для цього розробимо ER діаграму (рисунок 2.2). Для діаграми створено такі таблиці: Users, Consultants, Admins, WeightMeasurements, UserGoal, MealEntries, ExerciseEntries, WaterIntake, StreakHistory, UserConsultants, ConsultantsNotes, ConsultantRequest.
+
+
+
+
+
+
+
+
+
+
+
+
+Рисунок 2.2 – ER діаграма даних
+
+
+2.3 Розроблення бази даних програмної системи
+
+Для  створення бази даних використовується MSSQL Server та ASP.NET. Код для створення таблиць винесено в додаток А.
+
+
+
+2.4 Розробка діаграми структури бази даних
+
+Після створення таблиць в БД, була розроблена діаграма структури бази даних (рисунок 2.3).
+Рисунок 2.3 – Діаграма структури бази даних
+
+
+
+
+
+2.5 Розробка функцій для роботи з базою даних
+
+Для роботи з базою даних було створено моделі бази даних та контекст бази даних з використання Entity Framework, код моделей та контексту бази даних винесено в додаток А
+
+2.6 Розробка АРІ для взаємодії серверної частини з клієнтами.
+
+Для розробки АРІ для взаємодії серверної частини з клієнтами було створено RESTful API. Було створено всі необхідні контролери для роботи з цим API, код контролерів винесено до додатку А.
+
+Короткий опис функцій для взаємодії серверної частини з клієнтами:
+
+	Функції авторизації та реєстрації:
+-	реєстрація та авторизація користувача;
+-	реєстрація та авторизація консультанта;
+-	реєстрація та авторизація адміна.
+
+Функції для консультантів:
+-	відправка запиту на приєднання до користувача;
+-	приймання запиту консультанта;
+-	видалення прийнявшого запит користувача;
+-	оновлення інформації для консольтанта (нікнейма, фото профіля, опис та кількості клієнтів).
+
+Функції для залишку рекомендацій консультантів для користувачів:
+-	додавання рекомендацій для користувача;
+-	оновлення доданої рекомендаці для користувача;
+-	видалення доданої рекомендації;
+-	отримання всіх рекомендацій для користувача.
+
+Функції для ведення щоденника фізичних вправ користувачі:
+-	додавання нової фізичної вправи;
+-	оновлення доданої фізичної вправи;
+-	видалення фізичної вправи;
+-	отримання всіх фізичних вправ користувача.
+
+Функції для ведення харчового щоденника користувача:
+-	додати прийом їжі;
+-	видалити прийом їжі;
+-	отримання даних про прийоми їжі користувача.
+
+Функції для відслідковування стріку користувача (кількості днів коли користувач користувався додатком):
+-	Додати стрік користувача;
+-	Оновити стрік користувача;
+-	Отримати інформації про стрік користувача;
+-	Видалити стрік користувча.
+
+Функції для користувачів:
+-	оновлення інформації про користувача (нікнейму, фото профілю, опису профілю та ваги користувача)
+
+Функції для ведення щоденнику прийому води:
+-	додавання прийому води;
+-	оновлення прийому води;
+-	видалення прийому води;
+-	отримання даних про всі прийоми води користувача.
+
+2.7 Створення програмної реалізації розробленого АРІ
+
+Було створено програмну реалізацію описаних вище функцій API (рисунки 2.4 – 2.6)
+ 
+ 
+Рисунок 2.4 – Програмна реалізація для АРІ
+
+ 
+Рисунок 2.5 – Програмна реалізація для АРІ
+
+ 
+Рисунок 2.6 – Програмна реалізація для АРІ
+
+2.8 Створення специфікації розробленого АРІ
+
+Був створений README.MD файл який містить повну розроблену специфікацію API. Через великий вміст файлу його опис можна побачити в GitHub за посиланням (https://github.com/NureKryvoshapkoSerhii/arkpz-pzpi-22-8-kryvoshapko-serhii/tree/main/Task2/arkpz-pzpi-22-8-kryvoshapko-serhii-task2).
+ 
+3 Висновки:
+
+У даній роботі було розроблено базу даних для серверної частини програмної системи та прикладний програмний інтерфейс для продукту NutriTrack. Було створено UML діаграму прецедентів, яка описує взаємодію основних акторів з системою, та ER діаграму даних, що визначає структуру бази даних. 
+Було реалізовано базу даних за допомогою MSSQL Server та ASP.NET, включаючи діаграму її структури. Було розроблено моделі бази даних та контекст бази даних з використанням Entity Framework, а також створено RESTful API для взаємодії серверної частини з клієнтами. Реалізація API та його специфікація були детально описані, що дозволяє використовувати його для подальшого розвитку та інтеграції з клієнтськими додатками.
+	Посилання на відео: https://youtu.be/LjHoJIK7I6Q
+
+
+
+
+
+
+
+
+
+
+
+
+
+ДОДАТОК А
+
+Код для створення таблиць в базі даних
+1. -- Таблиця Users
+2. CREATE TABLE Users (
+3.     user_uid NVARCHAR(50) PRIMARY KEY,
+4.     nickname NVARCHAR(50) NOT NULL,
+5.     profile_picture NVARCHAR(MAX),
+6.     profile_description NVARCHAR(MAX),
+7.     gender NVARCHAR(10),
+8.     height INT,
+9.     current_weight FLOAT,
+10.     created_at DATETIME NOT NULL DEFAULT GETDATE(),
+11.     last_login DATETIME,
+12.     is_active BIT NOT NULL DEFAULT 1 );
+15. -- Таблиця Consultants
+16. CREATE TABLE Consultants (
+17.     consultant_uid NVARCHAR(50) PRIMARY KEY,
+18.     nickname NVARCHAR(50) NOT NULL,
+19.     profile_picture NVARCHAR(MAX),
+20.     profile_description NVARCHAR(MAX), -- Додаємо поле для опису профілю
+21.     experience_years INT NOT NULL,
+22.     is_active BIT NOT NULL DEFAULT 1,
+23.     created_at DATETIME NOT NULL DEFAULT GETDATE(),
+24. 	last_login DATETIME,
+25.     max_clients INT NOT NULL,
+26.     current_clients INT NOT NULL DEFAULT 0 ); 
+30. -- Таблиця WeightMeasurements
+31. CREATE TABLE WeightMeasurements (
+32.     measurement_id INT IDENTITY(1,1) PRIMARY KEY,
+33.     user_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Users(user_uid),
+34.     weight FLOAT NOT NULL,
+35.     measured_at DATETIME NOT NULL,
+36.     device_id NVARCHAR(50),
+37.     is_synced BIT NOT NULL DEFAULT 0);
+40. -- Таблиця UserGoals
+41. CREATE TABLE UserGoals (
+42.     goal_id INT IDENTITY(1,1) PRIMARY KEY,
+43.     user_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Users(user_uid),
+44.     consultant_uid NVARCHAR(50) NULL FOREIGN KEY REFERENCES Consultants(consultant_uid),
+45.     goal_type NVARCHAR(10) NOT NULL CHECK (goal_type IN ('gain', 'loss', 'maintain')),
+46.     target_weight FLOAT NOT NULL,
+47.     duration_weeks INT NOT NULL,
+48.     daily_calories FLOAT NOT NULL,
+49.     daily_protein FLOAT NOT NULL,
+50.     daily_carbs FLOAT NOT NULL,
+51.     daily_fats FLOAT NOT NULL,
+52.     start_date DATE NOT NULL,
+53.     is_approved_by_consultant BIT NOT NULL DEFAULT 0); 
+56. -- Таблиця MealEntries
+57. CREATE TABLE MealEntries (
+58.     entry_id INT IDENTITY(1,1) PRIMARY KEY, -- Унікальний ID запису
+59.     user_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Users(user_uid), -- ID користувача
+60.     meal_type NVARCHAR(10) NOT NULL CHECK (meal_type IN ('breakfast', 'lunch', 'dinner', 'snack')), -- Тип прийому їжі
+61.     entry_date DATE NOT NULL, -- Дата прийому їжі
+62.     product_name NVARCHAR(100) NOT NULL, -- Назва продукту
+63.     quantity_grams FLOAT NOT NULL, -- Кількість у грамах
+64.     calories FLOAT NOT NULL, -- Калорії
+65.     protein FLOAT NOT NULL, -- Білки
+66.     carbs FLOAT NOT NULL, -- Вуглеводи
+67.     fats FLOAT NOT NULL, -- Жири
+68.     created_at DATETIME NOT NULL DEFAULT GETDATE() -- Час створення);
+72. -- Таблиця ExerciseEntries
+73. CREATE TABLE ExerciseEntries (
+74.     exercise_id INT IDENTITY(1,1) PRIMARY KEY,
+75.     user_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Users(user_uid),
+76.     exercise_name NVARCHAR(100) NOT NULL,
+77.     duration_minutes INT NOT NULL,
+78.     calories_burned FLOAT NOT NULL,
+79.     exercise_type NVARCHAR(50),
+80.     entry_date DATE NOT NULL);
+83. -- Таблиця WaterIntake
+84. CREATE TABLE WaterIntake (
+85.     intake_id INT IDENTITY(1,1) PRIMARY KEY,
+86.     user_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Users(user_uid),
+87.     amount_ml FLOAT NOT NULL,
+88.     entry_date DATE NOT NULL);
+91. -- Таблиця StreakHistory
+92. CREATE TABLE StreakHistory (
+93.     streak_id INT IDENTITY(1,1) PRIMARY KEY,
+94.     user_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Users(user_uid),
+95.     streak_date DATE NOT NULL,
+96.     current_streak INT NOT NULL,
+97.     is_active BIT NOT NULL DEFAULT 1 );
+100. -- Таблиця UserConsultants
+101. CREATE TABLE UserConsultants (
+102.     user_consultant_id NVARCHAR(50) PRIMARY KEY,
+103.     user_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Users(user_uid),
+104.     consultant_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Consultants(consultant_uid),
+105.     assignment_date DATETIME NOT NULL DEFAULT GETDATE(),
+106.     is_active BIT NOT NULL DEFAULT 1); 
+109. -- Таблиця ConsultantNotes
+110. CREATE TABLE ConsultantNotes (
+111.     note_id INT IDENTITY(1,1) PRIMARY KEY,
+112.     consultant_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Consultants(consultant_uid),
+113.     goal_id INT NULL FOREIGN KEY REFERENCES UserGoals(goal_id),
+114. 	user_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Users(user_uid),
+115.     content NVARCHAR(MAX) NOT NULL,
+116.     created_at DATETIME NOT NULL DEFAULT GETDATE());
+119. -- Таблиця ConsultantRequests
+120. CREATE TABLE ConsultantRequests (
+121.     request_id INT IDENTITY(1,1) PRIMARY KEY,
+122.     consultant_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Consultants(consultant_uid),
+123.     user_uid NVARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Users(user_uid),
+124.     status NVARCHAR(10) NOT NULL CHECK (status IN ('pending','accepted', 'rejected')),
+125.     created_at DATETIME NOT NULL DEFAULT GETDATE(),
+126.     responded_at DATETIME NULL); 
+129. CREATE TABLE Admins (
+130.     admin_uid NVARCHAR(50) PRIMARY KEY,       -- Унікальний ідентифікатор адміністратора
+131.     registration_date DATETIME NOT NULL,       -- Дата реєстрації адміністратора
+132.     name NVARCHAR(100) NOT NULL,               -- Ім'я адміністратора
+133.     email NVARCHAR(100) NOT NULL,              -- Електронна пошта адміністратора
+134.     phone_number NVARCHAR(20) NOT NULL,        -- Номер телефону (формат +380 для України)
+135.     CONSTRAINT UC_Admin_Email UNIQUE (email)  -- Унікальність електронної пошти);
+
+Деякий код для створення моделей бази даних та контексту бази даних 
+
+1. public class Admin
+2.  {
+3.      [Key]
+4.      public string admin_uid { get; set; }  // Унікальний ідентифікатор адміністратора
+6.      [Required]
+7.      public DateTime registration_date { get; set; }  // Дата реєстрації адміністратора
+9.      [Required]
+10.      [MaxLength(100)]
+11.      public string name { get; set; }  // Ім'я адміністратора
+13.      [Required]
+14.      [EmailAddress]
+15.      [MaxLength(100)]
+16.      public string email { get; set; }  // Електронна пошта адміністратора
+18.      [Required]
+19.      [RegularExpression(@"^\+380\d{9}$", ErrorMessage = "Phone number must be in the format +380XXXXXXXXX")]
+20.      [MaxLength(20)]
+21.      public string phone_number { get; set; }  // Номер телефону в форматі +380
+22.  }
+24.  public class User
+25.  {
+26.      [Key]
+27.      public string user_uid { get; set; }
+29.      [Required]
+30.      [MaxLength(50)]
+31.      public string nickname { get; set; }
+33.      public string profile_picture { get; set; }
+34.      public string profile_description { get; set; }
+35.      public string gender { get; set; }
+36.      public int? height { get; set; }
+37.      public double? current_weight { get; set; }
+38.      public DateTime created_at { get; set; } = DateTime.UtcNow; // Значення за замовчуванням
+39.      public DateTime? last_login { get; set; }
+40.      public bool is_active { get; set; }
+42.      // Ініціалізація колекцій в конструкторі
+43.      public User()
+44.      {
+45.          WeightMeasurements = new HashSet<WeightMeasurement>();
+46.          UserGoals = new HashSet<UserGoal>();
+47.          MealEntries = new HashSet<MealEntry>();
+48.          ExerciseEntries = new HashSet<ExerciseEntry>();
+49.          WaterIntakes = new HashSet<WaterIntake>();
+50.          StreakHistories = new HashSet<StreakHistory>();
+51.          UserConsultants = new HashSet<UserConsultant>();
+52.          ConsultantNotes = new HashSet<ConsultantNote>();
+53.          ConsultantRequests = new HashSet<ConsultantRequest>();
+54.      }
+56.      // Навігаційні властивості
+57.      public virtual ICollection<WeightMeasurement> WeightMeasurements { get; set; }
+58.      public virtual ICollection<UserGoal> UserGoals { get; set; }
+59.      public virtual ICollection<MealEntry> MealEntries { get; set; }
+60.      public virtual ICollection<ExerciseEntry> ExerciseEntries { get; set; }
+61.      public virtual ICollection<WaterIntake> WaterIntakes { get; set; }
+62.      public virtual ICollection<StreakHistory> StreakHistories { get; set; }
+63.      public virtual ICollection<UserConsultant> UserConsultants { get; set; }
+64.      public virtual ICollection<ConsultantNote> ConsultantNotes { get; set; }
+65.      public virtual ICollection<ConsultantRequest> ConsultantRequests { get; set; }
+66.  }
+68.  public class Consultant
+69.  {
+70.      [Key]
+71.      public string consultant_uid { get; set; }
+73.      [Required]
+75.      [MaxLength(50)]
+76.      public string nickname { get; set; }
+78.      public string profile_picture { get; set; }
+80.      // Додаємо нове поле для опису профілю
+81.      public string profile_description { get; set; }
+83.      [Required]
+84.      public int experience_years { get; set; }
+86.      public bool is_active { get; set; }
+87.      public DateTime created_at { get; set; } = DateTime.UtcNow;
+88.      public DateTime? last_login { get; set; }
+90.      [Required]
+91.      public int max_clients { get; set; }
+93.      public int current_clients { get; set; }
+94. 
+95.      public Consultant()
+96.      {
+97.          UserGoals = new HashSet<UserGoal>();
+98.          UserConsultants = new HashSet<UserConsultant>();
+99.          ConsultantNotes = new HashSet<ConsultantNote>();
+100.          ConsultantRequests = new HashSet<ConsultantRequest>();
+101.      }
+103.      public virtual ICollection<UserGoal> UserGoals { get; set; }
+104.      public virtual ICollection<UserConsultant> UserConsultants { get; set; }
+105.      public virtual ICollection<ConsultantNote> ConsultantNotes { get; set; }
+106.      public virtual ICollection<ConsultantRequest> ConsultantRequests { get; set; }
+107.  }
+
+1. public class ApplicationDbContext : DbContext
+2. {
+3.     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+4.         : base(options) { }
+6.     // DbSets for each model
+7.     public DbSet<User> Users { get; set; }
+8.     public DbSet<Consultant> Consultants { get; set; }
+9.     public DbSet<WeightMeasurement> WeightMeasurements { get; set; }
+10.     public DbSet<UserGoal> UserGoals { get; set; }
+11.     public DbSet<MealEntry> MealEntries { get; set; }
+12.     public DbSet<ExerciseEntry> ExerciseEntries { get; set; }
+13.     public DbSet<WaterIntake> WaterIntakes { get; set; }
+14.     public DbSet<StreakHistory> StreakHistories { get; set; }
+15.     public DbSet<UserConsultant> UserConsultants { get; set; }
+16.     public DbSet<ConsultantNote> ConsultantNotes { get; set; }
+17.     public DbSet<ConsultantRequest> ConsultantRequests { get; set; }
+18.     public DbSet<Admin> Admins { get; set; }  // DbSet для Admin
+20.     // Configuring the model relationships
+21.     protected override void OnModelCreating(ModelBuilder modelBuilder)
+22.     {
+23.         base.OnModelCreating(modelBuilder);
+25. // Example of configuring one-to-many relationship between User and WeightMeasurement
+26.         modelBuilder.Entity<WeightMeasurement>()
+27.             .HasOne(w => w.User)
+28.             .WithMany(u => u.WeightMeasurements)
+29.             .HasForeignKey(w => w.user_uid)
+30.             .OnDelete(DeleteBehavior.Cascade);
+31. 
+32.         modelBuilder.Entity<UserGoal>()
+33.             .HasOne(ug => ug.User)
+34.             .WithMany(u => u.UserGoals)
+35.             .HasForeignKey(ug => ug.user_uid)
+36.             .OnDelete(DeleteBehavior.Cascade);
+37. 
+38.         modelBuilder.Entity<UserGoal>(entity =>
+39.         {
+40.             entity.HasOne(ug => ug.User)
+41.                 .WithMany(u => u.UserGoals)
+42.                 .HasForeignKey(ug => ug.user_uid)
+43.                 .OnDelete(DeleteBehavior.Cascade);
+45.             entity.HasOne(ug => ug.Consultant)
+46.                 .WithMany(c => c.UserGoals)
+47.                 .HasForeignKey(ug => ug.consultant_uid)
+48.                 .IsRequired(false)  // Явно вказуємо що це необов'язкове поле
+49.                 .OnDelete(DeleteBehavior.SetNull);
+51.             // Конфігурація для enum GoalType
+52.             entity.Property(e => e.goal_type)
+53.                 .HasConversion<string>()  // Конвертуємо enum в string
+54.                 .IsRequired()
+55.                 .HasMaxLength(10);  // Обмежуємо довжину як в БД
+56.         });
+58.         modelBuilder.Entity<MealEntry>()
+59.             .HasOne(me => me.User)
+60.             .WithMany(u => u.MealEntries)
+61.             .HasForeignKey(me => me.user_uid)
+62.             .OnDelete(DeleteBehavior.Cascade);
+64.         modelBuilder.Entity<ExerciseEntry>()
+65.             .HasOne(e => e.User)
+66.             .WithMany(u => u.ExerciseEntries)
+67.             .HasForeignKey(e => e.user_uid)
+68.             .OnDelete(DeleteBehavior.Cascade);
+70.         modelBuilder.Entity<WaterIntake>()
+71.             .HasOne(w => w.User)
+72.             .WithMany(u => u.WaterIntakes)
+73.             .HasForeignKey(w => w.user_uid)
+74.             .OnDelete(DeleteBehavior.Cascade);
+76.         modelBuilder.Entity<StreakHistory>()
+77.             .HasOne(s => s.User)
+78.             .WithMany(u => u.StreakHistories)
+79.             .HasForeignKey(s => s.user_uid)
+80.             .OnDelete(DeleteBehavior.Cascade);
+82.         modelBuilder.Entity<UserConsultant>()
+83.             .HasOne(uc => uc.User)
+84.             .WithMany(u => u.UserConsultants)
+85.             .HasForeignKey(uc => uc.user_uid)
+86.             .OnDelete(DeleteBehavior.Cascade);
+88.         modelBuilder.Entity<UserConsultant>()
+89.             .HasOne(uc => uc.Consultant)
+90.             .WithMany(c => c.UserConsultants)
+91.             .HasForeignKey(uc => uc.consultant_uid)
+92.             .OnDelete(DeleteBehavior.Cascade);
+94.         modelBuilder.Entity<ConsultantNote>()
+95.             .HasOne(cn => cn.Consultant)
+96.             .WithMany(c => c.ConsultantNotes)
+97.             .HasForeignKey(cn => cn.consultant_uid)
+98.             .OnDelete(DeleteBehavior.Cascade);
+100.         modelBuilder.Entity<ConsultantNote>()
+101.             .HasOne(cn => cn.UserGoal)
+102.             .WithMany(ug => ug.ConsultantNotes)
+103.             .HasForeignKey(cn => cn.goal_id)
+104.             .OnDelete(DeleteBehavior.SetNull);
+
+Код контролерів
+
+1. [ApiController]
+2.  [Route("api/[controller]")]
+3.  public class AuthController : ControllerBase
+4.  {
+5.      private readonly ApplicationDbContext _context;
+7.      public AuthController(ApplicationDbContext context)
+8.      {
+9.          _context = context;
+10.      }
+12.      [HttpPost("login")]
+13.      public async Task<IActionResult> Login([FromBody] LoginRequest request)
+14.      {
+15. var user = await _context.Users.FirstOrDefaultAsync(u => u.user_uid == request.user_uid);
+17.          if (user == null)
+18.          {
+19.              return Unauthorized(new { message = "User not found." });
+20.          }
+22.          // Оновлення last_login тільки датою
+23.          user.last_login = DateTime.Today;
+24.          _context.Entry(user).State = EntityState.Modified;
+25.          await _context.SaveChangesAsync();
+27.          return Ok(new
+28.          {
+29.              user.user_uid,
+30.              user.nickname,
+31.          });
+32.      }
+34.      [HttpPost("login-consultant")]
+35.   public async Task<IActionResult> LoginConsultant([FromBody] ConsultantLoginRequest request)
+36.      {
+37.        var consultant = await _context.Consultants.FirstOrDefaultAsync(c => c.consultant_uid == request.consultant_uid);
+39.          if (consultant == null)
+40.          {
+41.              return Unauthorized(new { message = "Consultant not found." });
+42.          }
+44.          // Оновлення last_login тільки датою
+45.          consultant.last_login = DateTime.Today;
+46.          _context.Entry(consultant).State = EntityState.Modified;
+47.          await _context.SaveChangesAsync();
+49.          return Ok(new
+50.          {
+51.              consultant.consultant_uid,
+52.              consultant.nickname,
+53.              consultant.profile_picture,
+54.              consultant.profile_description
+55.          });
+56.      }
+58.      [HttpPost("register/user")]
+59.      public async Task<IActionResult> RegisterUser([FromBody] RegisterUserRequest request)
+60.      {
+61.          if (await _context.Users.AnyAsync(u => u.user_uid == request.user_uid))
+62.          {
+63.              return BadRequest(new { message = "User already registered." });
+64.          }
+66.          var user = new User
+67.          {
+68.              user_uid = request.user_uid,
+69.              nickname = request.nickname,
+70.              profile_picture = request.profile_picture,
+71.              profile_description = request.profile_description,
+72.              gender = request.gender,
+73.              height = request.height,
+74.              current_weight = request.current_weight,
+75.              created_at = DateTime.Today, // Зберігаємо тільки дату
+76.              last_login = DateTime.Today, // Зберігаємо тільки дату
+77.              is_active = true
+78.          };
+80.          _context.Users.Add(user);
+81.          await _context.SaveChangesAsync();
+83.          return CreatedAtAction(nameof(Login), new { FirebaseUid = user.user_uid }, user);
+84.      }
+86.      [HttpPost("register/consultant")]
+87.      public async Task<IActionResult> RegisterConsultant([FromBody] RegisterConsultantRequest request)
+88.      {
+89.          if (await _context.Consultants.AnyAsync(c => c.consultant_uid == request.consultant_uid))
+90.          {
+91.              return BadRequest(new { message = "Consultant already registered." });
+92.          }
+94.          var consultant = new Consultant
+95.          {
+96.              consultant_uid = request.consultant_uid,
+97.              nickname = request.nickname,
+98.              profile_picture = request.profile_picture,
+99.              profile_description = request.profile_description,
+100.              experience_years = request.experience_years,
+101.              max_clients = request.max_clients,
+102.              created_at = DateTime.Today, // Зберігаємо тільки дату
+103.              last_login = DateTime.Today, // Зберігаємо тільки дату
+104.              is_active = true
+105.          };
+107.          _context.Consultants.Add(consultant);
+108.          await _context.SaveChangesAsync();
+110.  return CreatedAtAction(nameof(LoginConsultant), new { FirebaseUid = consultant.consultant_uid }, consultant); }
