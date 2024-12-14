@@ -1,0 +1,275 @@
+МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+
+Кафедра «Програмної інженерії»
+
+
+
+ЗВІТ
+З лабораторної роботи № 3
+з дисципліни
+«Аналіз та рефакторинг коду»
+
+
+
+Виконав
+ст. гр. ПЗПІ-22-8
+Кривошапко Сергій	Перевірив
+ст. викладач каф. ПІ
+Сокорчук І. П.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Харків 2024
+1 Мета роботи:
+
+Розробити бізнес-логику та функції адміністрування серверної частини програмної системи для підрахунку калорій та контролю раціону харчування – NutriTrack.
+
+2 Хід роботи:
+
+2.1 Розробити бізнес логіку серверної частини програмної системи.
+
+Проект NutriTrack має на меті створення та управління цілями користувачів щодо їх ваги та харчування. Основними елементами бізнес-логіки є створення, оновлення та отримання цілей користувачів, а також забезпечення взаємодії між користувачами та консультантами. 
+Бізнес-логіка проекту NutriTrack включає ефективне управління даними користувачів, цілей та взаємодії між користувачами та консультантами. Процеси створення, оновлення та затвердження цілей базуються на точних розрахунках харчових потреб, що забезпечує досягнення користувачами своїх цілей щодо ваги та здоров'я.
+
+2.2 Розробити функції адміністрування серверної частини програмної системи.
+
+Для адміністратора були розроблені такі функції адміністрування як: видалення юзера або консультанта, перегляд інформації про конкретного юзера чи консультанта та отримання статистики по додатку (загальної кількості користувачів та консультантів додатку, активних користувачів та кількості активний консультантів). Також адміністратор зможе оновлювати дані профілю юзерів та консультантів. Було створено дві UML діаграми які зображені на рисунка 2.1 – 2.2.
+
+
+
+
+
+
+
+
+
+
+
+
+Рисунок 2.1 – UML діаграма діяльності для серверної частини
+
+
+ 
+Рисунок 2.2 –  UML діаграма взаємодії для серверної частини.
+2.3 Створення програмної реалізації бізнес логіки та функцій адміністрування серверної частини.
+
+Було створено програмну реалізацію описаних вище функцій адміністрування та бізнес логіки, код контролерів винесено в додаток А. (рисунки 2.3 – 2.4).
+Рисунок 2.3 – Програмна реалізація для бізнес логіки API
+
+
+
+
+
+
+
+
+Рисунок 2.4 – Програмна реалізація для адміністрування API
+
+3 Висновки:
+
+У результаті виконання лабораторної роботи була розроблена бізнес-логіка та функції адміністрування серверної частини програмної системи NutriTrack. Основною метою було забезпечення ефективного управління цілями користувачів, їхніми даними та взаємодією з консультантами.
+Реалізовані функції адміністрування дозволяють адміністратору виконувати ключові операції, такі як видалення користувачів чи консультантів, оновлення їхніх профілів та перегляд статистики. Розробка включала створення відповідних UML діаграм і програмну реалізацію необхідних функцій. 
+У результаті було забезпечено функціонування основних бізнес-процесів, що дозволяють ефективно контролювати калорії та харчування користувачів системи.
+Посилання на відео: https://www.youtube.com/watch?v=2ymC_gnOSFc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ДОДАТОК А
+
+Код адмін контролера та бізнес логіки
+
+1. [ApiController]
+2.  [Route("api/[controller]")]
+3.  public class AdminController : ControllerBase
+4.  {
+5.      private readonly ApplicationDbContext _context;
+7.      public AdminController(ApplicationDbContext context)
+8.      {
+9.          _context = context;
+10.      }
+12.      [HttpDelete("remove-user/{userUid}")]
+13.      public async Task<IActionResult> RemoveUser(string userUid)
+14.      {
+15.          using var transaction = await _context.Database.BeginTransactionAsync();
+16.          try
+17.          {
+18.              // Delete all weight measurements
+19.              await _context.WeightMeasurements
+20.                  .Where(w => w.user_uid == userUid)
+21.                  .ExecuteDeleteAsync();
+23.              // Delete all meal entries
+24.              await _context.MealEntries
+25.                  .Where(m => m.user_uid == userUid)
+26.                  .ExecuteDeleteAsync();
+27. 
+28.              // Delete all exercise entries
+29.              await _context.ExerciseEntries
+30.                  .Where(e => e.user_uid == userUid)
+31.                  .ExecuteDeleteAsync();
+33.              // Delete all water intakes
+34.              await _context.WaterIntakes
+35.                  .Where(w => w.user_uid == userUid)
+36.                  .ExecuteDeleteAsync();
+37. 
+38.              // Delete all streak histories
+39.              await _context.StreakHistories
+40.                  .Where(s => s.user_uid == userUid)
+41.                  .ExecuteDeleteAsync();
+42. 
+43.              // Delete consultant notes for this user
+44.              await _context.ConsultantNotes
+45.                  .Where(cn => cn.user_uid == userUid)
+46.                  .ExecuteDeleteAsync();
+47. 
+48.              // Delete consultant requests
+49.              await _context.ConsultantRequests
+50.                  .Where(cr => cr.user_uid == userUid)
+51.                  .ExecuteDeleteAsync();
+52. 
+53.              // Delete user-consultant relationships
+54.              await _context.UserConsultants
+55.                  .Where(uc => uc.user_uid == userUid)
+56.                  .ExecuteDeleteAsync();
+57. 
+58.              // Delete user goals
+59.              await _context.UserGoals
+60.                  .Where(ug => ug.user_uid == userUid)
+61.                  .ExecuteDeleteAsync();
+62. 
+63.              // Finally, delete the user
+64.              await _context.Users
+65.                  .Where(u => u.user_uid == userUid)
+66.                  .ExecuteDeleteAsync();
+68.              await transaction.CommitAsync();
+69.              return Ok(new { message = "User and all related data removed successfully." });
+70.          }
+71.          catch (Exception ex)
+72.          {
+73.              await transaction.RollbackAsync();
+74.              return StatusCode(500, new { message = "Error removing user data.", error = ex.Message });
+75.          }
+76.      }
+78.      [HttpDelete("remove-consultant/{consultantUid}")]
+79.      public async Task<IActionResult> RemoveConsultant(string consultantUid)
+80.      {
+81.          using var transaction = await _context.Database.BeginTransactionAsync();
+82.          try
+83.          {
+84.              // Delete consultant notes
+85.              await _context.ConsultantNotes
+86.                  .Where(cn => cn.consultant_uid == consultantUid)
+87.                  .ExecuteDeleteAsync();
+89.              // Delete consultant requests
+90.              await _context.ConsultantRequests
+91.                  .Where(cr => cr.consultant_uid == consultantUid)
+92.                  .ExecuteDeleteAsync();
+94.              // Delete user-consultant relationships
+95.              await _context.UserConsultants
+96.                  .Where(uc => uc.consultant_uid == consultantUid)
+97.                  .ExecuteDeleteAsync();
+99.              // Update user goals to remove consultant reference
+100.              await _context.UserGoals
+101.                  .Where(ug => ug.consultant_uid == consultantUid)
+102.                  .ExecuteUpdateAsync(s => s
+103.                      .SetProperty(b => b.consultant_uid, (string)null)
+104.                      .SetProperty(b => b.is_approved_by_consultant, false));
+106.              // Finally, delete the consultant
+107.              await _context.Consultants
+108.                  .Where(c => c.consultant_uid == consultantUid)
+109.                  .ExecuteDeleteAsync();
+111.              await transaction.CommitAsync();
+112.              return Ok(new { message = "Consultant and all related data removed successfully."});
+114.          catch (Exception ex)
+115.          {
+116.              await transaction.RollbackAsync();
+117.              return StatusCode(500, new { message = "Error removing consultant data.", error = ex.Message });
+118.          }
+119.      }
+122.      [HttpGet("get-user-info")]
+123.      public async Task<IActionResult> GetUserInfo([FromQuery] string nickname, [FromQuery] DateTime createdAt, [FromQuery] DateTime lastLogin)
+124.      {
+125.          var user = await _context.Users
+126.              .Where(u => u.nickname == nickname && u.created_at == createdAt && u.last_login == lastLogin)
+127.              .Select(u => new
+128.              {
+129.                  u.user_uid,
+130.                  u.nickname,
+131.                  u.created_at,
+132.                  u.last_login,
+133.                  u.gender,
+134.                  u.height,
+135.                  u.current_weight
+136.              })
+137.              .FirstOrDefaultAsync();
+139.          if (user == null)
+140.          {
+141.              return NotFound(new { message = "User not found." });
+142.          }
+144.          return Ok(user);
+145.      }
+
+
+1. // Calculate nutrition needs
+2.  private (double calories, double protein, double carbs, double fats) CalculateNutrition(
+3.       double currentWeight,
+4.       double targetWeight,
+5.       int durationWeeks,
+6.       int height,
+7.       string gender,
+8.      GoalType goalType)
+9.  {
+10.      double bmr;
+12.      // Використовуємо різні формули для чоловіків та жінок
+13.      if (gender.ToLower() == "male")
+14.      {
+15.          bmr = (10 * currentWeight) + (6.25f * height) - (5 * 30) + 5;  // Для чоловіків
+16.      }
+17.      else
+18.      {
+19.          bmr = (10 * currentWeight) + (6.25f * height) - (5 * 30) - 161; // Для жінок
+20.      }
+22.      double tdee = bmr * 1.55f; 
+24.      double dailyCalories = tdee;
+25.      switch (goalType)
+26.      {
+27.          case GoalType.Loss:
+28.              dailyCalories = tdee - 500;
+29.              break;
+30.          case GoalType.Gain:
+31.              dailyCalories = tdee + 300;
+32.              break;
+33.          case GoalType.Maintain:
+34.              dailyCalories = tdee;
+35.              break;
+36.      }
+38.      // Розрахунок макроелементів
+39.      double protein = currentWeight * 2.0f; // 2 г на 1 кг ваги
+40.      double fats = (dailyCalories * 0.25f) / 9; // 25% калорій
+41.      double carbs = (dailyCalories - (protein * 5) - (fats * 9)) / 4;
+43.      return (dailyCalories, protein, carbs, fats);
+44.  }
