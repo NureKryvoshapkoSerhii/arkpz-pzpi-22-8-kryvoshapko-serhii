@@ -1,0 +1,305 @@
+МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+
+Кафедра «Програмної інженерії»
+
+
+
+ЗВІТ
+З лабораторної роботи № 4
+з дисципліни
+«Аналіз та рефакторинг коду»
+
+
+
+Виконав
+ст. гр. ПЗПІ-22-8
+Кривошапко Сергій	Перевірив
+ст. викладач каф. ПІ
+Сокорчук І. П.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Харків 2024
+1 Мета роботи:
+
+Розробити програмне забезпечення для IoT або SmartDevice пристрою, створеного на базі будь-якої поширеної на сьогодні платформи, придатної для реалізації вбудованих систем
+
+2 Хід роботи:
+
+2.1 Технології використані для розробки IoT системи
+
+ІоТ частина додатку написана на мові програмування C++. Як мікроконтролер використано ESP32. Контролер для виміру ваги - HX711, який підключено до вагового датчика. На рисунку зображено схему підключення:
+ESP32 з'єднано з HX711, використовуючи наступні з'єднання:
+-	GND (ESP32) підключено до GND (HX711)
+-	VCC (ESP32) підключено до VCC (HX711)
+-	GPIO  підключено до DT (HX711)
+-	GPIO підключено до SCK (HX711)
+Ця схема дозволяє вимірювати вагу за допомогою вагового датчика, підключеного до HX711, зчитуючи та надсилаючі дані через ESP32. Схема ІоТ системи зображена на рисунку 2.1.
+ 
+Рисунок 2.1 – Схема пристрою IoT
+
+2.2 Створення UML діаграми прецедентів для ІоТ клієнта.
+
+На рисунку 2.2 зображено діаграму прецедентів. Ключовими акторами є IoT система та Користувач системи. IoT система відповідає за підключення до мережі, брокера MQTT та публікацію даних. Користувач системи відповідає за авторизацію та синхронізацію даних.  
+Рисунок 2.2 – Діаграма відношень між акторами та прецедентами в системі
+
+2.3 Розробка бізнес логіки та функцій налаштування ІоТ клієнта
+
+Підключення до WiFi - програма спочатку підключається до вказаної WiFi мережі. Вона відстежує стан підключення і чекає, поки воно не буде встановлено. Після успішного підключення, програма виводить IP-адресу пристрою.
+Підключення до MQTT брокера - програма підключається до вказаного MQTT брокера. Вона встановлює з'єднання з брокером, використовуючи вказані ім'я користувача та пароль. Якщо підключення не вдається, програма виводить повідомлення про помилку і робить спробу підключитися знову через 5 секунд.
+Считування даних про вагу - програма зчитує значення та відправляє дані в форматі JSON , що містить вагу, час вимірювання, ідентифікатор пристрою та прапорець синхронізації. Використовуючи клієнт MQTT, програма публікує ці дані на тему "weight/measurements". Якщо дані відправлено успішно, програма позначає, що дані були відправлені, і зупиняє свою роботу.
+Загалом, ця система відповідає за підключення до WiFi, підключення до MQTT брокера, зчитування та публікацію даних про вагу, а також зупинку програми після успішної відправки. 
+
+2.4 Створення діаграми діяльності для ІоТ клієнта.
+
+ 
+Рисунок 2.3 – Діаграма діяльності ІоТ клієнта
+2.5 Створення програмної реалізації бізнес логіки та функцій налаштування ІоТ клієнта
+
+Для працездатності ІоТ системи було створено додатковий контролер в базі даних, який відповідає за отримання даних він ІоТ та надсилання їх на сервер. Код самої ІоТ системи та контролера винесено в додаток А.
+
+ 
+Рисунок 2.4 – Програмна реалізація контролеру для ІоТ системи
+
+3 Висновки:
+
+В ході лабораторної роботи було розроблено програмне забезпечення для IoT пристрою на базі ESP32, що дозволяє зчитувати вагові дані за допомогою датчика HX711 та передавати їх до сервера через MQTT брокер. Було реалізовано функції підключення до WiFi та MQTT, зчитування вагових даних та їх публікації у форматі JSON. Виконано моделювання системи за допомогою UML діаграм та описано бізнес-логіку. 
+
+Посилання на відео: https://www.youtube.com/watch?v=O0SCuqxT0nU
+
+
+
+
+ДОДАТОК А
+
+Програмний код ІоТ системи та контролеру для ІоТ
+
+1. #include <WiFi.h>
+2. #include <PubSubClient.h>
+3. 
+4. // WiFi налаштування
+5. const char* ssid = "Wokwi-GUEST";
+6. const char* password = "";
+7. 
+8. // MQTT налаштування
+9. const char* mqtt_server = "broker.emqx.io";  // Публічний MQTT брокер
+10. const int mqtt_port = 1883;  // Порт для небезпечного MQTT (без SSL)
+11. const char* mqtt_user = "";  
+12. const char* mqtt_password = "";
+13. 
+14. WiFiClient espClient;
+15. PubSubClient client(espClient);
+16. 
+17. bool dataSent = false;  // Початково - дані не відправлені
+18. // Функція для підключення до WiFi
+19. void setup_wifi() {
+20.   delay(10);
+21.   Serial.println();
+22.   Serial.print("Підключення до ");
+23.   Serial.println(ssid);
+24. 
+25.   WiFi.begin(ssid, password);
+26. 
+27.   while (WiFi.status() != WL_CONNECTED) {
+28.     delay(500);
+29.     Serial.print(".");
+30.   }
+31. 
+32.   Serial.println("");
+33.   Serial.println("WiFi підключено!");
+34.   Serial.print("IP address: ");
+35.   Serial.println(WiFi.localIP());
+36. }
+37. // Функція для підключення до MQTT брокера
+38. void reconnect() {
+39.   while (!client.connected()) {
+40.     Serial.print("Підключення до MQTT...");
+41.     if (client.connect("ESP32Client", mqtt_user, mqtt_password)) {
+42.       Serial.println("підключено!");
+43.     } else {
+44.       Serial.print("помилка, rc=");
+45.       Serial.print(client.state());
+46.       Serial.println(" спроба підключення через 5 секунд");
+47.       delay(5000);
+48.     }
+49.   }
+50. }
+51. 
+52. int generateRandomWeight() {
+53.   return random(50, 120); 
+54. }
+55. // Відправка даних
+56. void sendData() {
+57.   if (dataSent) {
+58.     Serial.println("Дані вже були відправлені. Припиняємо відправку.");
+59.     return;  // Якщо дані вже відправлені, припиняємо відправку
+60.   }
+61. 
+62.   // Генерація випадкової ваги
+63.   int weight = generateRandomWeight();
+64.   
+65.   // Створення JSON-формату
+66.   String jsonBody = "{"
+67.                     "\"weight\": " + String(weight) + ","
+68.                     "\"measuredAt\": \"" + getCurrentTime() + "\","
+69.                     "\"deviceId\": \"ESP32Device\","
+70.                     "\"isSynced\": true"
+71.                     "}";
+72. 
+73.   Serial.println("Відправка даних...");
+74.   Serial.println(jsonBody);
+75. 
+76.   // Публікація даних на тему "weight/measurements"
+77.   if (client.publish("weight/measurements", jsonBody.c_str())) {
+78.     Serial.println("Дані успішно відправлені!");
+79.     dataSent = true;  // Позначаємо, що дані були відправлені
+80.     stopProgram();  // Зупинка програми після успішної відправки
+81.   } else {
+82.     Serial.println("Помилка відправки даних!");
+83.   }
+84. }
+85. // Отримання поточного часу у форматі ISO 8601
+86. String getCurrentTime() {
+87.   unsigned long currentMillis = millis();
+88.   char timeBuffer[30];
+89.   snprintf(timeBuffer, sizeof(timeBuffer), "%04d-%02d-%02dT%02d:%02d:%02d.%03dZ", 
+90.            2024, 12, 9, 15, 8, 19, currentMillis);
+91.   return String(timeBuffer);
+92. }
+93. 
+94. // Функція для зупинки програми
+95. void stopProgram() {
+96.   Serial.println("Програма зупинена.");
+97.   while (true) {
+98.     // Завершуємо виконання програми, зупиняючи всі цикли
+99.     delay(1000);  // Безкінечно зупиняємо програму
+100.   }
+101. }
+102. void setup() {
+103.   Serial.begin(115200);
+104.   setup_wifi();
+105.   client.setServer(mqtt_server, mqtt_port);
+106.   client.setCallback(callback);
+107. }
+108. void loop() {
+109.   if (!client.connected()) {
+110.     reconnect();
+111.   }
+112.   client.loop();
+113.   // Відправка даних лише один раз
+114.   if (!dataSent) {  // Якщо дані ще не були відправлені
+115.     static unsigned long lastMsg = 0;
+116.     unsigned long now = millis();
+117.     if (now - lastMsg > 10000) {  // 10 секунд
+118.       lastMsg = now;
+119.       sendData();
+120.     }
+121.   }
+122. }
+123. // Callback для обробки отриманих повідомлень
+124. void callback(char* topic, byte* payload, unsigned int length) {
+125.   String payloadString = "";
+126.   for (int i = 0; i < length; i++) {
+127.     payloadString += (char)payload[i];
+128.   }
+129.   Serial.println("Отримані дані: " + payloadString);
+130. }
+
+
+1. [Route("api/[controller]")]
+2.     [ApiController]
+3.     public class WeightMeasurementsController : ControllerBase
+4.     {
+5.         private readonly ApplicationDbContext _context;
+6. 
+7.         public WeightMeasurementsController(ApplicationDbContext context)
+8.         {
+9.             _context = context;
+10.         }
+11. 
+12.         // POST: api/WeightMeasurements
+13.         [HttpPost]
+14.         public async Task<IActionResult> PostWeightMeasurement([FromBody] WeightMeasurementRequest request)
+15.         {
+16.             if (request == null)
+17.             {
+18.                 return BadRequest("Invalid data.");
+19.             }
+20. 
+21.             // Перевіряємо чи існує користувач із таким user_uid
+22.             var user = await _context.Users.FirstOrDefaultAsync(u => u.user_uid == request.UserUid);
+23.             if (user == null)
+24.             {
+25.                 return NotFound("User not found.");
+26.             }
+27. 
+28.             // Створюємо новий об'єкт вимірювання ваги
+29.             var weightMeasurement = new WeightMeasurement
+30.             {
+31.                 user_uid = request.UserUid,
+32.                 weight = request.Weight,
+33.                 measured_at = request.MeasuredAt,
+34.                 device_id = request.DeviceId,
+35.                 is_synced = request.IsSynced
+36.             };
+37. 
+38.             // Додаємо в базу даних
+39.             _context.WeightMeasurements.Add(weightMeasurement);
+40.             await _context.SaveChangesAsync();
+41. 
+42.             return CreatedAtAction(nameof(GetWeightMeasurement), new { id = weightMeasurement.measurement_id }, weightMeasurement);
+43.         }
+44. 
+45.         // GET: api/WeightMeasurements/{userUid}
+46.         [HttpGet("user/{userUid}")]
+47.         public async Task<ActionResult<IQueryable<WeightMeasurement>>> GetWeightMeasurementsByUserUid(string userUid)
+48.         {
+49.             // Отримуємо всі вимірювання для цього користувача
+50.             var weightMeasurements = await _context.WeightMeasurements
+51.                 .Where(wm => wm.user_uid == userUid)
+52.                 .ToListAsync();
+53. 
+54.             if (weightMeasurements == null || !weightMeasurements.Any())
+55.             {
+56.                 return NotFound("No weight measurements found for this user.");
+57.             }
+58. 
+59.             return Ok(weightMeasurements);
+60.         }
+61. 
+62.         // GET: api/WeightMeasurements/5
+63.         [HttpGet("{id}")]
+64.         public async Task<ActionResult<WeightMeasurement>> GetWeightMeasurement(int id)
+65.         {
+66.             var weightMeasurement = await _context.WeightMeasurements.FindAsync(id);
+67. 
+68.             if (weightMeasurement == null)
+69.             {
+70.                 return NotFound();
+71.             }
+72. 
+73.             return weightMeasurement;
+74.         }
+75.     }
+76. 
+77.     // Клас для запиту (Body) у POST запиті
+78.     public class WeightMeasurementRequest
+79.     {
+80.         public string UserUid { get; set; }
+81.         public double Weight { get; set; }
+82.         public DateTime MeasuredAt { get; set; }
+83.         public string DeviceId { get; set; }
+84.         public bool IsSynced { get; set; }
+85.     }
+86. }
